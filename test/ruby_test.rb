@@ -1,6 +1,31 @@
 require 'minitest/autorun'
+require 'pty'
 
 class RubyTest < Minitest::Test
+  # https://svn.ruby-lang.org/cgi-bin/viewvc.cgi/trunk/test/ruby/test_backtrace.rb?r1=65422&r2=65421&pathrev=65422
+  def assert_pty(args, test_stdin = "", dummy, expected)
+    actual = nil
+    PTY.spawn(RbConfig.ruby, *args) do |r, w, pid|
+      w.puts test_stdin
+      w.puts "__END__"
+      w.close
+      actual = r.read
+    end
+    expected = test_stdin.chomp + "\n__END__\n" + expected.to_s
+    expected.gsub!(/\n/, "\r\n")
+    assert_equal expected, actual
+  end
+
+  # http://blog.livedoor.jp/sonots/archives/33344291.html
+  def capture_stderr
+    out = StringIO.new
+    $stderr = out
+    yield
+    return out.string
+  ensure
+    $stderr = STDERR
+  end
+
   def test_else_without_rescue
     script = <<~RUBY
       begin
@@ -21,13 +46,10 @@ class RubyTest < Minitest::Test
     assert_equal 123, Мир
   end
 
-  def test_non_symbol_keys_in_keyword_args
-    # ???
-  end
-
-  def test_shadowing_warning
-    # How to test??
-    # ruby -cw -e "user = users.find {|user| cond(user) }"
+  def test_shadowing_no_warning
+    cmd = %Q[user = users.find {|user| cond(user) }; puts user]
+    err = "Syntax OK\n"
+    assert_pty(%w[-cw], cmd, [], err)
   end
 
   def test_endless_range
@@ -60,6 +82,7 @@ class RubyTest < Minitest::Test
       i <=> o.i
     end
   end
+
   def test_range_triple_equals
     # it "returns the result of calling #include? on self"
     range = 0...10
@@ -231,16 +254,6 @@ class RubyTest < Minitest::Test
     ['./test/dir_b/code_a.rb', './test/dir_b/text_a.txt'].each do |name|
       File.delete(name) if File.exist?(name)
     end
-  end
-
-  # http://blog.livedoor.jp/sonots/archives/33344291.html
-  def capture_stderr
-    out = StringIO.new
-    $stderr = out
-    yield
-    return out.string
-  ensure
-    $stderr = STDERR
   end
 
   def test_dir_glob_with_null_char
