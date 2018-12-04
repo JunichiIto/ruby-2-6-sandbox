@@ -309,4 +309,26 @@ class RubyTest < Minitest::Test
     end
     assert_equal 'non-symbol key in keyword arguments: "a"', e.message
   end
+
+  def test_print_cause
+    err = <<TEXT
+\e[1mTraceback\e[m (most recent call last):
+	2: from -:6:in `<main>'
+	1: from -:2:in `test'
+-:2:in `/': \e[1mdivided by 0 (\e[1;4mZeroDivisionError\e[m\e[1m)\e[m
+	2: from -:6:in `<main>'
+	1: from -:1:in `test'
+-:4:in `rescue in test': \e[1mundefined method `messagee' for #<ZeroDivisionError: divided by 0> (\e[1;4mNoMethodError\e[m\e[1m)\e[m
+\e[1mDid you mean?  message\e[m
+TEXT
+    script = <<~RUBY
+      def test
+        1 / 0
+      rescue => e
+        e.messagee
+      end
+      test
+    RUBY
+    assert_pty([], script, [], err)
+  end
 end
