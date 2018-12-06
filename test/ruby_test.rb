@@ -41,9 +41,9 @@ class RubyTest < Minitest::Test
 
   # Мはロシア語の大文字
   # https://ja.wikipedia.org/wiki/%D0%9C
-  Мир = 123
+  class Мир; end
   def test_non_ascii_constants
-    assert_equal 123, Мир
+    assert_instance_of Class, Мир
   end
 
   def test_shadowing_no_warning
@@ -54,16 +54,22 @@ class RubyTest < Minitest::Test
 
   def test_endless_range
     assert_equal [1, 2, 3], (1..).take(3)
-    array = [0, 1, 2]
-    assert_equal [1, 2], array[1..]
+    array = [1, 2, 3]
+    assert_equal [2, 3], array[1..]
+    assert_equal [2, 3], array[1..-1]
+    assert_equal [2, 3], array[1...]
+
+    assert_equal "cde", "abcde"[2..]
+    assert_equal "cde", "abcde"[2..-1]
+    assert_equal "cde", "abcde"[2...]
   end
 
   def test_range_percent
-    steps = (1..).step(2)
-    assert_equal [1, 3, 5], steps.take(3)
+    steps = (1..6).step(2)
+    assert_equal [1, 3, 5], steps.to_a
 
-    steps = (1..) % 2
-    assert_equal [1, 3, 5], steps.take(3)
+    steps = (1..6) % 2
+    assert_equal [1, 3, 5], steps.to_a
   end
 
   # Range#=== は Range#include? メソッドでチェックしていたのですが、rb_funcall() で実際にメソッド呼び出しはやめて
