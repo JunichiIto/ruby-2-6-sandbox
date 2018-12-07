@@ -108,16 +108,16 @@ class RubyTest < Minitest::Test
     assert range === MyClass.new(2)
   end
 
-  def test_range_accepts_range
+  def test_range_cover_accepts_range
     assert (1..5).cover?(2..3)
     refute (1..5).cover?(2..6)
     refute (1..5).cover?(0..3)
 
-    assert (1..5).include?(2..3)
+    refute (1..5).include?(2..3)
     refute (1..5).include?(2..6)
     refute (1..5).include?(0..3)
 
-    assert (1..5) === (2..3)
+    refute (1..5) === (2..3)
     refute (1..5) === (2..6)
     refute (1..5) === (0..3)
   end
