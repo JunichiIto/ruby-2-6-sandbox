@@ -78,8 +78,11 @@ class RubyTest < Minitest::Test
   # Range#include? は始点が整数に変換可能か、文字列かでないと処理できないのでこれ以外の要素による Range の時には
   # <=> メソッドの大小関係のみで判定できる cover? のほうがより汎用的に使えるということのようです。
   # https://svn.ruby-lang.org/cgi-bin/viewvc.cgi/trunk/spec/ruby/core/range/case_compare_spec.rb?view=markup&pathrev=63453
+  #
+  # 離散値としての範囲なら include? 連続値なら cover?
+  # 離散値 = 1人、2人、1冊、2冊など、小数になるとおかしいもの => include?
+  # 連続値 = 時間、身長、体重など、小数でも違和感がないもの   => cover?
   class MyClass
-    include Comparable
     attr_reader :i
     def initialize(i)
       @i = i
@@ -107,6 +110,16 @@ class RubyTest < Minitest::Test
 
   def test_range_accepts_range
     assert (1..5).cover?(2..3)
+    refute (1..5).cover?(2..6)
+    refute (1..5).cover?(0..3)
+
+    assert (1..5).include?(2..3)
+    refute (1..5).include?(2..6)
+    refute (1..5).include?(0..3)
+
+    assert (1..5) === (2..3)
+    refute (1..5) === (2..6)
+    refute (1..5) === (0..3)
   end
 
   def test_range_step_returns_Enumerator__ArithmeticSequence
