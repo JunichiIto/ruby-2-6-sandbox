@@ -381,4 +381,34 @@ TEXT
     RUBY
     assert_pty([], script, [], err)
   end
+
+  def test_enumerator_chain
+    e = (1..3).chain([4, 5], (6..8))
+    assert_equal [1, 2, 3, 4, 5, 6, 7, 8], e.to_a
+    assert_instance_of Enumerator::Chain, e
+  end
+
+  def test_enumerable_plus
+    e = (1..3).each + [4, 5] + (6..8)
+    assert_equal [1, 2, 3, 4, 5, 6, 7, 8], e.to_a
+    assert_instance_of Enumerator::Chain, e
+  end
+
+  def test_enumerator_chain_class
+    assert_same Enumerator, Enumerator::Chain.superclass
+  end
+
+  def test_object_tilde
+    err = <<TEXT
+-:1: warning: Object#=~ is deprecated; it always returns nil
+-:2: warning: Object#=~ is deprecated; it always returns nil
+TEXT
+    script = <<~RUBY
+      ['foo'] =~ /foo/
+      ['foo'] !~ /foo/
+      'foo' =~ /foo/
+      nil =~ /foo/
+    RUBY
+    assert_pty(['-W'], script, [], err)
+  end
 end
