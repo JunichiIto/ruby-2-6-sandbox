@@ -127,13 +127,16 @@ class RubyTest < Minitest::Test
     assert_same Enumerator, Enumerator::ArithmeticSequence.superclass
   end
 
-  def test_full_messages_options
+  def test_full_message_options
     1 / 0
   rescue => e
-    assert_match "ZeroDivisionError", e.full_message(highlight: false, order: 'top').lines[0]
-    assert_match "Traceback (most recent call last):", e.full_message(highlight: false, order: 'bottom').lines[0]
-    assert_match "\e[1mTraceback\e[m ", e.full_message(highlight: true, order: 'bottom').lines[0]
-    refute_match "\e", e.full_message(highlight: false, order: 'bottom').lines[0]
+    assert_match "\e[1mTraceback\e[m ", e.full_message.lines[0]
+
+    assert_match "ZeroDivisionError", e.full_message(highlight: false, order: :top).lines[0]
+    assert_match "Traceback (most recent call last):", e.full_message(highlight: false, order: :bottom).lines[0]
+
+    assert_match "\e[1mTraceback\e[m ", e.full_message(highlight: true, order: :bottom).lines[0]
+    refute_match "\e", e.full_message(highlight: false, order: :bottom).lines[0]
   end
 
   def test_name_error
@@ -168,8 +171,8 @@ class RubyTest < Minitest::Test
   end
 
   def test_array_to_h
-    hash = ['alice', 'bob', 'carol'].to_h { |name| [name.to_sym, []] }
-    assert_equal({ alice: [], bob: [], carol: [] }, hash)
+    hash = ['alice', 'bob', 'carol'].to_h { |name| [name.to_sym, name.size] }
+    assert_equal({ alice: 5, bob: 3, carol: 5 }, hash)
   end
 
   def test_array_filter
@@ -207,6 +210,16 @@ class RubyTest < Minitest::Test
     assert_equal({ a: 1, b: 2, c: 3}, a)
   end
 
+  def test_hash_update
+    a = { a: 1 }
+    b = { b: 2 }
+    c = { c: 3 }
+
+    e = a.update(b, c)
+    assert_equal({ a: 1, b: 2, c: 3}, e)
+    assert_equal({ a: 1, b: 2, c: 3}, a)
+  end
+
   def test_string_sprit_with_block
     s = "1,2,3,4,5"
 
@@ -229,6 +242,24 @@ class RubyTest < Minitest::Test
 
     assert_raises(ArgumentError) do
       Integer('a')
+    end
+  end
+
+  require 'bigdecimal'
+  def test_BigDecimal
+    a = BigDecimal('a', exception: false)
+    assert_nil a
+
+    assert_raises(ArgumentError) do
+      BigDecimal('a')
+    end
+  end
+
+  def test_kernel_system
+    assert_nil system('foo bar')
+
+    assert_raises(Errno::ENOENT) do
+      assert_nil system('foo bar', exception: true)
     end
   end
 
