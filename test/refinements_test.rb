@@ -4,32 +4,30 @@ class RefinementsTest < Minitest::Test
   using Module.new {
     refine String do
       def to_proc
-        proc { |it| it.send self }
+        # 渡された引数に対して、メソッド名=自分自身の文字列となるメソッドを呼び出す
+        # （Symbol#to_procと考え方は同じ）
+        -> (arg) { arg.send(self) }
       end
 
-      def refine_method
-        "X#refine_method"
+      def upcase_reverse
+        self.upcase.reverse
       end
     end
   }
 
-  def func &block
-    block.call("homu")
-  end
-
   def test_to_proc
-    assert_equal "X#refine_method", "upcase".refine_method
+    assert_equal "!OLLEH", "hello!".upcase_reverse
 
-    assert_equal "HOMU", "upcase".to_proc.call("homu")
+    assert_equal "BYE!", "upcase".to_proc.call("bye!")
 
-    assert_equal "HOMU", func(&"upcase")
+    assert_equal ['A', 'B', 'C'], ['a', 'b', 'c'].map(&"upcase")
   end
 
   def test_public_send
-    assert_equal "X#refine_method", "upcase".public_send(:refine_method)
+    assert_equal "!OLLEH", "hello!".public_send(:upcase_reverse)
   end
 
   def test_respond_to?
-    assert "upcase".respond_to?(:refine_method)
+    assert "hello!".respond_to?(:upcase_reverse)
   end
 end
