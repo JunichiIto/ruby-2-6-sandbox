@@ -355,7 +355,7 @@ class RubyTest < Minitest::Test
 
   def test_keyword_args
     e = assert_raises(ArgumentError) do
-      m("a" => 1, a: 1)
+      m("a" => 1, b: 1)
     end
     assert_equal 'non-symbol key in keyword arguments: "a"', e.message
   end
