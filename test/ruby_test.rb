@@ -153,21 +153,23 @@ class RubyTest < Minitest::Test
   def test_array_union
     a = [1, 2, 3]
     b = [3, 4, 5]
-    c = a.union(b)
-    assert_equal [1, 2, 3, 4, 5], c
+    c = [4, 5, 6]
+    d = a.union(b, c)
+    assert_equal [1, 2, 3, 4, 5, 6], d
     assert_equal [1, 2, 3], a
 
     assert_equal [1, 2, 3, 4, 5], (a | b)
   end
 
   def test_array_diference
-    a = [1, 2, 3]
-    b = [3, 4, 5]
-    c = a.difference(b)
-    assert_equal [1, 2], c
-    assert_equal [1, 2, 3], a
+    a = [1, 2, 3, 4, 5]
+    b = [0, 1, 2]
+    c = [5, 6, 7]
+    d = a.difference(b, c)
+    assert_equal [3, 4], d
+    assert_equal [1, 2, 3, 4, 5], a
 
-    assert_equal [1, 2], (a - b)
+    assert_equal [3, 4, 5], (a - b)
   end
 
   def test_array_to_h
@@ -333,6 +335,19 @@ class RubyTest < Minitest::Test
     end
 
     tz = Timezone.fetch('Europe/Athens')
+    t = Time.new(2002, 10, 31, 2, 2, 2, tz)
+    assert_equal '2002-10-31 02:02:02 +0200', t.to_s
+  end
+
+  def test_time_new_with_tzinfo
+    begin
+      require 'tzinfo'
+    rescue LoadError
+      puts 'Please `gem install tzinfo`'
+      raise
+    end
+
+    tz = TZInfo::Timezone.get('Europe/Athens')
     t = Time.new(2002, 10, 31, 2, 2, 2, tz)
     assert_equal '2002-10-31 02:02:02 +0200', t.to_s
   end
