@@ -426,4 +426,19 @@ TEXT
     RUBY
     assert_pty(['-W'], script, [], err)
   end
+
+  def test_flip_flop
+    err = <<TEXT
+-:2: warning: flip-flop is deprecated
+Syntax OK
+TEXT
+    script = <<~RUBY
+      text.each_line(chomp: true) do |line|
+        if (line == 'hello')..(line == 'bye')
+          puts line
+        end
+      end
+    RUBY
+    assert_pty(['-cw'], script, [], err)
+  end
 end
