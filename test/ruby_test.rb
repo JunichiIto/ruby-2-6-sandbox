@@ -158,7 +158,7 @@ class RubyTest < Minitest::Test
     assert_equal [1, 2, 3, 4, 5, 6], d
     assert_equal [1, 2, 3], a
 
-    assert_equal [1, 2, 3, 4, 5], (a | b)
+    assert_equal [1, 2, 3, 4, 5, 6], (a | b | c)
   end
 
   def test_array_diference
@@ -169,7 +169,7 @@ class RubyTest < Minitest::Test
     assert_equal [3, 4], d
     assert_equal [1, 2, 3, 4, 5], a
 
-    assert_equal [3, 4, 5], (a - b)
+    assert_equal [3, 4], (a - b - c)
   end
 
   def test_array_to_h
