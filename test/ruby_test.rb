@@ -441,4 +441,10 @@ TEXT
     RUBY
     assert_pty(['-cw'], script, [], err)
   end
+
+  # https://qiita.com/jnchito/items/ce11cb7fccdf4b66af24#comment-8d2dee0afb53e53f016b
+  def test_unicode_11
+    str = "\u{1F9C0}\u{1F9F8}"
+    assert_equal 2, str.scan(/\p{Emoji}/).count
+  end
 end
