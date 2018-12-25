@@ -415,8 +415,8 @@ TEXT
 
   def test_object_tilde
     err = <<TEXT
--:1: warning: Object#=~ is deprecated; it always returns nil
--:2: warning: Object#=~ is deprecated; it always returns nil
+-:1: warning: deprecated Object#=~ is called on Array; it always returns nil
+-:2: warning: deprecated Object#=~ is called on Array; it always returns nil
 TEXT
     script = <<~RUBY
       ['foo'] =~ /foo/
